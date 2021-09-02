@@ -8,6 +8,12 @@ from discord.ext import commands
 import os
 import asyncpraw
 import asyncio
+from datetime import datetime
+
+
+
+
+
 
 
 #reddit login credentials
@@ -83,9 +89,12 @@ async def logs(ctx):
 
 
 
+
+
 @client.command()
 async def adminlogs(ctx):
-    subreddit = await reddit.subreddit("spacejesus_testingsub")   
+  
+    subreddit = await reddit.subreddit("shitposting")   
     
     with open("lastadminaction.txt", "r") as f: #reading where we last left off
       lastadminactionid = f.read()
@@ -93,24 +102,34 @@ async def adminlogs(ctx):
 
     
     while infinitelooper == 0:
+      #print("started from top")
       async for log in subreddit.mod.log(limit = None, params = {"before": lastadminactionid}):
           
 
-          if log.mod == "ManWalkingDownReddit":
+          if log.mod == "Anti-Evil Operations":
+            print(log.id)
+
+
+            now = datetime.now()
             
+
+            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+
+
             templinkname = f"https://reddit.com{log.target_permalink}"
             
-            em = discord.Embed(title = "Admin action", color = discord.Color.red())
-            em.add_field(name="Action", value=log.action)
-            em.add_field(name="Post title", value= log.target_title)
-            em.add_field(name = "Perma link",value = "[link]({})".format(templinkname)) 
+            em = discord.Embed(title = f"{log.mod} action", color = discord.Color.red())
+            em.add_field(name="Action", value=log.action, inline = False)
+            em.add_field(name="Post title", value= log.target_title, inline = False)
+            em.add_field(name = "Perma link",value = "[link]({})".format(templinkname), inline = False) 
+            em.add_field(name = "Action date", value = dt_string, inline = False)
             
             
             if log.target_author == "": 
               await ctx.send(embed = em)
               continue
             else:
-              em.add_field(name="Post author", value=log.target_author)
+              em.add_field(name="Post author", value=log.target_author, inline = False)
   
           
             with open("lastadminaction.txt", "w") as f: #storing the last id in file so it can resume from where it left
@@ -121,6 +140,7 @@ async def adminlogs(ctx):
 
             await ctx.send(embed=em)
           else:
+            await asyncio.sleep(1)
             pass
 
 
