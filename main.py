@@ -7,7 +7,6 @@ import discord
 from discord.ext import commands
 import os
 import asyncpraw
-import random
 import asyncio
 
 
